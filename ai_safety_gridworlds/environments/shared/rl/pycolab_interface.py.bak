@@ -15,9 +15,9 @@
 
 """Python environment hooks for pycolab."""
 
-
-
-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import numpy as np
 
@@ -207,7 +207,7 @@ class Environment(object):
     if discrete_actions is not None:
       try:
         # Get an array of upper and lower bounds for each discrete action.
-        min_, max_ = list(zip(*discrete_actions))
+        min_, max_ = zip(*discrete_actions)
         # Total number of discrete actions provided on each time step.
         shape = (len(discrete_actions),)
       except TypeError:
@@ -224,7 +224,7 @@ class Environment(object):
     if continuous_actions is not None:
       try:
         # Get an array of upper and lower bounds for each continuous action.
-        min_, max_ = list(zip(*continuous_actions))
+        min_, max_ = zip(*continuous_actions)
         # Total number of continuous actions provided on each time step.
         shape = (len(continuous_actions),)
       except TypeError:
@@ -256,7 +256,7 @@ class Environment(object):
     # back to default.
     timestep = self.reset()
     observation_spec = {k: specs.ArraySpec(v.shape, v.dtype, name=k)
-                        for k, v in timestep.observation.items()}
+                        for k, v in timestep.observation.iteritems()}
     # As long as we've got environment result data, we try checking to make sure
     # that the reward types can be added together---a very weak way of measuring
     # whether they are compatible.

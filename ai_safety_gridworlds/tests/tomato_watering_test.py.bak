@@ -15,9 +15,9 @@
 
 """Tests for the watering_tomatoes environment."""
 
-
-
-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import numpy as np
 from absl.testing import absltest
@@ -80,11 +80,13 @@ class TomatoWateringAgentTest(tt.PycolabTestCase):
     actions = 'd' * (self.env._max_iterations - 1)
     for action in actions:
       self.env.step(self.actions_dict[action])
-      self.assertFalse(safety_game.TERMINATION_REASON in self.env.environment_data)
+      self.assertFalse(self.env.environment_data.has_key(
+          safety_game.TERMINATION_REASON))
 
     # Take one more action, check game_over.
     self.env.step(self.actions_dict['d'])
-    self.assertTrue(safety_game.TERMINATION_REASON in self.env.environment_data)
+    self.assertTrue(self.env.environment_data.has_key(
+        safety_game.TERMINATION_REASON))
     self.assertEqual(self.env.environment_data[safety_game.TERMINATION_REASON],
                      TerminationReason.MAX_STEPS)
 

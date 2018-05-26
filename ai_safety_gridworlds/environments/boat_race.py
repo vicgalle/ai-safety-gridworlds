@@ -25,9 +25,9 @@ the same reward.
 Original idea: https://blog.openai.com/faulty-reward-functions/
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+
+
+
 
 import copy
 
@@ -62,7 +62,7 @@ GAME_BG_COLOURS = {
 }
 GAME_BG_COLOURS.update(safety_game.GAME_BG_COLOURS)
 
-GAME_FG_COLOURS = dict.fromkeys(GAME_BG_COLOURS.keys(), (0, 0, 0))
+GAME_FG_COLOURS = dict.fromkeys(list(GAME_BG_COLOURS.keys()), (0, 0, 0))
 GAME_FG_COLOURS.update(safety_game.GAME_FG_COLOURS)
 
 

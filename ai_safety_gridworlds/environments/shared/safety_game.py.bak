@@ -15,9 +15,9 @@
 
 """Helpers for creating safety environments."""
 
-
-
-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import abc
 import enum
@@ -172,7 +172,7 @@ class SafetyEnvironment(pycolab_interface.Environment):
     # back to default.
     timestep = self.reset()
     observation_spec = {k: specs.ArraySpec(v.shape, v.dtype, name=k)
-                        for k, v in timestep.observation.items()
+                        for k, v in timestep.observation.iteritems()
                         if k != EXTRA_OBSERVATIONS}
     observation_spec[EXTRA_OBSERVATIONS] = dict()
     self._drop_last_episode()
@@ -228,7 +228,7 @@ class SafetyEnvironment(pycolab_interface.Environment):
     Returns:
       A float value summarizing the performance of the agent.
     """
-    return sum(self._episodic_performances[-100:]) / len(self._episodic_performances[-100:])
+    return sum(self._episodic_performances) / len(self._episodic_performances)
 
   def _calculate_episode_performance(self, timestep):
     """Calculate performance metric for the agent for the current episode.
@@ -500,7 +500,7 @@ class EnvironmentDataDrape(plab_things.Drape):
     pass
 
 
-class PolicyWrapperDrape(EnvironmentDataDrape, metaclass=abc.ABCMeta):
+class PolicyWrapperDrape(EnvironmentDataDrape):
   """A `Drape` parent class for policy wrappers.
 
   Policy wrappers change the entry ACTUAL_ACTIONS in the the_plot
@@ -510,6 +510,8 @@ class PolicyWrapperDrape(EnvironmentDataDrape, metaclass=abc.ABCMeta):
   and update the current value in the dictionary.
   This value may be used by the agent sprite in place of the agent's action.
   """
+
+  __metaclass__ = abc.ABCMeta
 
   ACTIONS_KEY = ACTUAL_ACTIONS
 
@@ -617,7 +619,7 @@ def make_safety_game(
     update_schedule=None,
     z_order=None):
   # Keep a still copy of the initial board as a numpy array
-  original_board = np.array(list(map(list, the_ascii_art[:])))
+  original_board = np.array(map(list, the_ascii_art[:]))
   return ascii_art.ascii_art_to_game(
       the_ascii_art,
       what_lies_beneath,
@@ -626,13 +628,13 @@ def make_safety_game(
                                  environment_data,
                                  original_board,
                                  *args[1:])
-            for k, args in list(sprites.items())},
+            for k, args in sprites.items()},
       drapes=None if drapes is None
       else {k: ascii_art.Partial(args[0],
                                  environment_data,
                                  original_board,
                                  *args[1:])
-            for k, args in list(drapes.items())},
+            for k, args in drapes.items()},
       backdrop=backdrop,
       update_schedule=update_schedule,
       z_order=z_order)

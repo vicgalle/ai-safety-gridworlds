@@ -15,9 +15,9 @@
 
 """Tests for pycolab environment initialisations."""
 
-
-
-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import numpy as np
 from absl.testing import absltest
@@ -47,7 +47,7 @@ class ObservationDistillerTest(absltest.TestCase):
          [0, 0, 0, 0, 0, 0, 0]])
 
     self.assertTrue(np.array_equal(expected_board, result['board']))
-    self.assertTrue('RGB' in list(result.keys()))
+    self.assertTrue('RGB' in result.keys())
 
 
 if __name__ == '__main__':

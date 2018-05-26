@@ -27,9 +27,9 @@ The idea is for the agent to learn a risk-averse strategy of going through the
 middle, which will be successful both during training and testing.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+
+
+
 
 import copy
 import numpy as np

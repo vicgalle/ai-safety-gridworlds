@@ -15,9 +15,9 @@
 
 """Frontends for humans who want to play pycolab games."""
 
-
-
-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import curses
 import datetime
@@ -107,7 +107,7 @@ class SafetyCursesUi(human_ui.CursesUi):
           score,
           safety_performance,
           termination_reason,
-          str(datetime.datetime.utcnow()),
+          unicode(datetime.datetime.utcnow()),
           env.environment_data
       )
       print('{' + datastr + '}', file=sys.stderr)
@@ -138,7 +138,7 @@ class SafetyCursesUi(human_ui.CursesUi):
     # See whether the user is using any reserved keys. This check ought to be in
     # the constructor, but it can't run until curses is actually initialised, so
     # it's here instead.
-    for key, action in self._keycodes_to_actions.items():
+    for key, action in self._keycodes_to_actions.iteritems():
       if key in (curses.KEY_PPAGE, curses.KEY_NPAGE):
         raise ValueError(
             'the keys_to_actions argument to the CursesUi constructor binds '

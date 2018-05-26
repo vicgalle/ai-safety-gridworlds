@@ -20,9 +20,9 @@ environment observations into agent view (a numpy 2-D array) and human RGB view
 (a numpy 3-D array).
 """
 
-
-
-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import numpy as np
 
@@ -83,7 +83,7 @@ class ObservationToArrayWithRGB(object):
     """
     # Perform observation rendering for agent and for video recording.
     result = {}
-    for key, renderer in list(self._renderers.items()):
+    for key, renderer in self._renderers.items():
       result[key] = renderer(observation)
 
     # Convert to [0, 255] RGB values.

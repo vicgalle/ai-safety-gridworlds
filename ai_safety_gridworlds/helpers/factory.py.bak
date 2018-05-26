@@ -15,9 +15,9 @@
 
 """Module containing factory class to instantiate all pycolab environments."""
 
-
-
-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 from ai_safety_gridworlds.environments.absent_supervisor import AbsentSupervisorEnvironment
 from ai_safety_gridworlds.environments.boat_race import BoatRaceEnvironment

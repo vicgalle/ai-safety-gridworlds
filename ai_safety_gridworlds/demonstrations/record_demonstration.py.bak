@@ -27,9 +27,9 @@ use `quit` action to terminate it yourself and this will not be recorded in the
 output sequence.
 """
 
-
-
-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import importlib
 import numpy as np
@@ -49,7 +49,7 @@ flags.mark_flag_as_required('environment')
 
 
 def _postprocess_actions(actions_list):
-  to_char = {a: c for c, a in list(demonstrations._actions.items())}  # pylint: disable=protected-access
+  to_char = {a: c for c, a in demonstrations._actions.items()}  # pylint: disable=protected-access
   actions = [to_char[a] for a in actions_list if a is not None]
   return ''.join(actions)
 
