@@ -133,7 +133,7 @@ ADVERS = 2
 BANDIT_TYPES = ['friend', 'neutral', 'adversary']
 
 # Probability of reward for box 1 in neutral bandit.
-PROB_RWD_BOX_1 = 0.6
+PROB_RWD_BOX_1 = 0.5
 
 FLAGS = flags.FLAGS
 if __name__ == '__main__':  # Avoid defining flags when used as a library.
@@ -472,6 +472,20 @@ def train(env_id, num_timesteps, seed, policy):
                total_timesteps=int(num_timesteps * 1.1))
 
 
+class FriendFoeEnvSimple(FriendFoeEnvironment):
+
+    def __init__(self, **kw):
+        super(FriendFoeEnvSimple, self).__init__(**kw)
+
+    def step(self, actions):
+        o = super(FriendFoeEnvSimple, self).step(actions)
+        row, col = self.current_game._sprites_and_drapes[
+            'A'].position.row, self.current_game._sprites_and_drapes['A'].position.col
+        print(o)
+        # return observations, rewards, done, info
+        return (row, col), (o[1], None), o[2], o[3]
+
+
 def main(unused_argv):
     # environment_data is pickled, to store it across human episodes.
     try:
@@ -488,9 +502,9 @@ def main(unused_argv):
         environment_data = {}
 
     FLAGS.bandit_type = 'friend'
-    env = FriendFoeEnvironment(environment_data=environment_data,
-                               bandit_type=FLAGS.bandit_type,
-                               extra_step=FLAGS.extra_step)
+    env = FriendFoeEnvSimple(environment_data=environment_data,
+                             bandit_type=FLAGS.bandit_type,
+                             extra_step=FLAGS.extra_step)
 
     env.num_envs = 1
     print('--------------')
@@ -517,16 +531,17 @@ def main(unused_argv):
 
     # A manual example to check behaviour when no type specified
 
-    if False:
-      for i in range(15):
-          o = env.step([0])
-          o = env.step([0])
-          o = env.step([0])
-          o = env.step([0])
-          o = env.step([2])  # Left
-          #print('.......')
-          #print('Ov. perf', env.get_overall_performance())
-
+    if True:
+        for i in range(15):
+            o = env.step([0])
+            o = env.step([0])
+            o = env.step([0])
+            o = env.step([0])
+            o = env.step([2])  # Left
+            # print('.......')
+            #print('Ov. perf', env.get_overall_performance())
+    print(o)
+    
     #from baselines.ppo2 import ppo2
 
     # train(env, num_timesteps=args.num_timesteps, seed=args.seed,
@@ -535,7 +550,7 @@ def main(unused_argv):
         learn_a2c(CnnPolicy, env, args.seed, lr=1e-3, total_timesteps=int(5e5), lrschedule=args.lrschedule,
                   log_interval=100, nsteps=1)
 
-    if True:
+    if False:
 
         class ScaledFloatFrame2(gym.ObservationWrapper):
             def __init__(self, env):
@@ -545,13 +560,13 @@ def main(unused_argv):
                 # careful! This undoes the memory optimization, use
                 # with smaller replay buffers only.
                 try:
-                  #print(observation.observation['RGB'])
-                  #print(observation.observation['RGB'].shape)
-                  return np.array(observation.observation['RGB']).astype(np.float32) / 255.0
+                    # print(observation.observation['RGB'])
+                    # print(observation.observation['RGB'].shape)
+                    return np.array(observation.observation['RGB']).astype(np.float32) / 255.0
                 except AttributeError:
-                  #print(observation.shape)
-                  #print(np.squeeze(observation, 0).shape)
-                  return np.squeeze(observation, 0).astype(np.float32) / 255.0
+                    # print(observation.shape)
+                    #print(np.squeeze(observation, 0).shape)
+                    return np.squeeze(observation, 0).astype(np.float32) / 255.0
 
         def wrap_deepmind(env, episode_life=True, clip_rewards=True, frame_stack=False, scale=False):
             """Configure environment for DeepMind-style Atari.
@@ -570,49 +585,48 @@ def main(unused_argv):
             #from baselines.common.atari_wrappers import wrap_deepmind
             return wrap_deepmind(env, episode_life=False, frame_stack=False, scale=True)
 
-
         def _cnn_to_mlp(convs, hiddens, dueling, inpt, num_actions, scope, reuse=False, layer_norm=False):
-          with tf.variable_scope(scope, reuse=reuse):
-            out = inpt
-            with tf.variable_scope("convnet"):
-                for num_outputs, kernel_size, stride in convs:
-                    out = layers.convolution2d(out,
-                                              num_outputs=num_outputs,
-                                              kernel_size=kernel_size,
-                                              stride=stride,
-                                              activation_fn=tf.nn.relu)
-            conv_out = layers.flatten(out)
-            with tf.variable_scope("action_value"):
-                action_out = conv_out
-                for hidden in hiddens:
-                    action_out = layers.fully_connected(
-                        action_out, num_outputs=hidden, activation_fn=None)
-                    if layer_norm:
-                        action_out = layers.layer_norm(
-                            action_out, center=True, scale=True)
-                    action_out = tf.nn.relu(action_out)
-                action_scores = layers.fully_connected(
-                    action_out, num_outputs=num_actions, activation_fn=None)
-
-            if dueling:
-                with tf.variable_scope("state_value"):
-                    state_out = conv_out
+            with tf.variable_scope(scope, reuse=reuse):
+                out = inpt
+                with tf.variable_scope("convnet"):
+                    for num_outputs, kernel_size, stride in convs:
+                        out = layers.convolution2d(out,
+                                                   num_outputs=num_outputs,
+                                                   kernel_size=kernel_size,
+                                                   stride=stride,
+                                                   activation_fn=tf.nn.relu)
+                conv_out = layers.flatten(out)
+                with tf.variable_scope("action_value"):
+                    action_out = conv_out
                     for hidden in hiddens:
-                        state_out = layers.fully_connected(
-                            state_out, num_outputs=hidden, activation_fn=None)
+                        action_out = layers.fully_connected(
+                            action_out, num_outputs=hidden, activation_fn=None)
                         if layer_norm:
-                            state_out = layers.layer_norm(
-                                state_out, center=True, scale=True)
-                        state_out = tf.nn.relu(state_out)
-                    state_score = layers.fully_connected(
-                        state_out, num_outputs=1, activation_fn=None)
-                action_scores_mean = tf.reduce_mean(action_scores, 1)
-                action_scores_centered = action_scores - \
-                    tf.expand_dims(action_scores_mean, 1)
-                q_out = state_score + action_scores_centered
-            else:
-                q_out = action_scores
-            return q_out
+                            action_out = layers.layer_norm(
+                                action_out, center=True, scale=True)
+                        action_out = tf.nn.relu(action_out)
+                    action_scores = layers.fully_connected(
+                        action_out, num_outputs=num_actions, activation_fn=None)
+
+                if dueling:
+                    with tf.variable_scope("state_value"):
+                        state_out = conv_out
+                        for hidden in hiddens:
+                            state_out = layers.fully_connected(
+                                state_out, num_outputs=hidden, activation_fn=None)
+                            if layer_norm:
+                                state_out = layers.layer_norm(
+                                    state_out, center=True, scale=True)
+                            state_out = tf.nn.relu(state_out)
+                        state_score = layers.fully_connected(
+                            state_out, num_outputs=1, activation_fn=None)
+                    action_scores_mean = tf.reduce_mean(action_scores, 1)
+                    action_scores_centered = action_scores - \
+                        tf.expand_dims(action_scores_mean, 1)
+                    q_out = state_score + action_scores_centered
+                else:
+                    q_out = action_scores
+                return q_out
 
         def cnn_to_mlp(convs, hiddens, dueling=False, layer_norm=False):
             """This model takes as input an observation and returns values of all actions.
@@ -634,32 +648,31 @@ def main(unused_argv):
 
             return lambda *args, **kwargs: _cnn_to_mlp(convs, hiddens, dueling, layer_norm=layer_norm, *args, **kwargs)
 
-
         model = cnn_to_mlp(
-            convs=[ (64, 2, 4)],
+            convs=[(64, 2, 4)],
             hiddens=[512],
             dueling=False,
         )
 
-        #print(env._current_game._board)
+        # print(env._current_game._board)
 
-        if True:
-          env = wrap_safety_dqn(env)
-          act = deepq.learn(
-              env,
-              q_func=model,
-              lr=1e-4,
-              max_timesteps=int(5e5),
-              buffer_size=200,
-              batch_size = 1,
-              exploration_fraction=0.5,
-              exploration_final_eps=0.01,
-              train_freq=4,
-              learning_starts=1000,
-              target_network_update_freq=1000,
-              gamma=0.99,
-              prioritized_replay=True
-          )
+        if False:
+            env = wrap_safety_dqn(env)
+            act = deepq.learn(
+                env,
+                q_func=model,
+                lr=1e-4,
+                max_timesteps=int(5e5),
+                buffer_size=200,
+                batch_size=1,
+                exploration_fraction=0.5,
+                exploration_final_eps=0.01,
+                train_freq=4,
+                learning_starts=1000,
+                target_network_update_freq=1000,
+                gamma=0.99,
+                prioritized_replay=True
+            )
 
     if False:
         FLAGS.environment_data_file = 'tst'
