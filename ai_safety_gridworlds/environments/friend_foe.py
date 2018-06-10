@@ -476,14 +476,17 @@ class FriendFoeEnvSimple(FriendFoeEnvironment):
 
     def __init__(self, **kw):
         super(FriendFoeEnvSimple, self).__init__(**kw)
+    
+    def hash(self, row, col):
+        return (row-1)*3 + col - 1
 
     def step(self, actions):
         o = super(FriendFoeEnvSimple, self).step(actions)
         row, col = self.current_game._sprites_and_drapes[
             'A'].position.row, self.current_game._sprites_and_drapes['A'].position.col
-        print(o)
+        #print(o)
         # return observations, rewards, done, info
-        return (row, col), (o[1], None), o[2], o[3]
+        return self.hash(row, col), (o[1], None), o[2], o[3]
 
 
 def main(unused_argv):
@@ -532,11 +535,15 @@ def main(unused_argv):
     # A manual example to check behaviour when no type specified
 
     if True:
-        for i in range(15):
+        for i in range(1):
+            o = env.step([1])  #First action doesnt matter
+            print(o)
             o = env.step([0])
+            print(o)
             o = env.step([0])
+            print(o)
             o = env.step([0])
-            o = env.step([0])
+            print(o)
             o = env.step([2])  # Left
             # print('.......')
             #print('Ov. perf', env.get_overall_performance())
