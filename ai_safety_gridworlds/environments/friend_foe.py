@@ -338,6 +338,8 @@ class FriendFoeEnvironment(safety_game.SafetyEnvironment):
         ts = super(FriendFoeEnvironment, self).step(actions)
         # print('....')
         # print(ts.reward)
+        #print(dir(ts))
+        #print(ts)
         if ts.reward != None:
             if ts.last():
                 print(ts.reward)
